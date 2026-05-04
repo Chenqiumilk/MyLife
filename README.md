@@ -1,19 +1,64 @@
-# DiaryFocusApp
+# Diary Focus
 
-Native SwiftUI prototype for an iOS diary and focus app.
+Diary Focus is a cute diary and focus app concept for iOS. It combines a monthly mood calendar, photo diary entries, timestamped life moments, daily todos, and focus sessions with animated companion pets.
 
-## Open
+This repository currently contains:
 
-Open `DiaryFocusApp.xcodeproj` in Xcode on macOS and run the `DiaryFocusApp` scheme on an iPhone simulator.
+- `WebPreview/` - a browser-based product prototype that runs on Windows.
+- `DiaryFocusApp/` - an early SwiftUI iOS prototype scaffold.
+- `style/` - visual references and background assets used for design exploration.
+- `docs/` - product, design, privacy, roadmap, and App Store planning notes.
 
-## Included flows
+## Features
 
-- Month calendar home screen with pastel mood shapes on past days.
-- Home menu for diary calendar, book review, movie review, and focus mode.
-- Settings sheet with font, notifications, lock screen, dark mode, backup, language, and pricing copy.
-- Diary editor with photo picker carousel and timestamped moment entries.
-- Focus page with photo background picker, duration slider, and countdown start/pause.
+- Month calendar with mood icons for past days.
+- Mood picker with soft pastel shapes and expressions.
+- Diary entries with photos, timestamp moments, and daily todos.
+- Focus timer with selectable pet companion and room background.
+- Completed focus time appears inside that day's diary.
+- Book review search and review library prototype.
+- Movie review search prototype.
 
-## Notes
+### Run the Web Preview
 
-This is a SwiftUI prototype using in-memory state. Before App Store distribution, replace `com.example.DiaryFocusApp` with your bundle identifier, add a complete app icon, and connect diary entries, moods, photos, settings, and purchases to persistent storage and StoreKit.
+On Windows:
+
+```powershell
+cd diaryapp
+Start-Process .\WebPreview\index.html
+```
+
+Or open:
+
+```
+WebPreview\index.html
+```
+
+## Run the iOS Prototype
+
+Open this project in Xcode on macOS:
+
+```text
+DiaryFocusApp/DiaryFocusApp.xcodeproj
+```
+
+The iOS project is a prototype scaffold and is not yet App Store ready.
+
+## Project Status
+
+Current stage: product prototype.
+
+Next target: native iOS MVP with local persistence, photo storage, focus session tracking, settings, and TestFlight readiness.
+
+## Documentation
+
+- [Product Requirements](docs/PRD.md)
+- [Roadmap](docs/ROADMAP.md)
+- [App Store Checklist](docs/APP_STORE_CHECKLIST.md)
+- [Privacy Notes](docs/PRIVACY.md)
+- [Design Notes](docs/DESIGN_NOTES.md)
+- [Portfolio Case Study Draft](docs/PORTFOLIO_CASE_STUDY.md)
+
+## License
+
+See [LICENSE](LICENSE).
