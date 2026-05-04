@@ -19,19 +19,19 @@ This repository currently contains:
 - Book review search and review library prototype.
 - Movie review search prototype.
 
-## Run the Web Preview
+### Run the Web Preview
 
 On Windows:
 
 ```powershell
-cd D:\PostPhD\diaryapp
+cd diaryapp
 Start-Process .\WebPreview\index.html
 ```
 
 Or open:
 
-```text
-D:\PostPhD\diaryapp\WebPreview\index.html
+```
+WebPreview\index.html
 ```
 
 ## Run the iOS Prototype
