@@ -19,6 +19,13 @@ This repository currently contains:
 - Book review search and review library prototype.
 - Movie review search prototype.
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/HomePage.png" width="250"/>
+  <img src="screenshots/focusPage.png" width="250"/>
+</p>
+
 ### Run the Web Preview
 
 On Windows:
