@@ -1,6 +1,6 @@
 # Diary Focus
 
-Diary Focus is a cute diary and focus app concept for iOS. It combines a monthly mood calendar, photo diary entries, timestamped life moments, daily todos, and focus sessions with animated companion pets.
+Diary Focus is a cute diary and focus app for iOS — designed for people who want to capture their day, track their mood, and stay focused, all in one cozy space.
 
 This repository currently contains:
 
@@ -8,6 +8,11 @@ This repository currently contains:
 - `DiaryFocusApp/` - an early SwiftUI iOS prototype scaffold.
 - `style/` - visual references and background assets used for design exploration.
 - `docs/` - product, design, privacy, roadmap, and App Store planning notes.
+
+- ## Tech Stack
+- SwiftUI
+- iOS 16+
+- Xcode 15+
 
 ## Features
 
