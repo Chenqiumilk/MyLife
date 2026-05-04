@@ -54,8 +54,6 @@ Open this project in Xcode on macOS:
 DiaryFocusApp/DiaryFocusApp.xcodeproj
 ```
 
-The iOS project is a prototype scaffold and is not yet App Store ready.
-
 ## Project Status
 
 Current stage: product prototype.
