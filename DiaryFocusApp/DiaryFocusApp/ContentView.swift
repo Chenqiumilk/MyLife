@@ -156,7 +156,7 @@ struct HomeView: View {
             .accessibilityLabel("Add diary entry")
             .padding(.bottom, 54)
         }
-        .padding(.horizontal, 34)
+        .padding(.horizontal, 24)
     }
 
     private var yearText: String {
@@ -175,13 +175,27 @@ struct CalendarGrid: View {
     @Binding var showingDiary: Bool
 
     private let calendar = Calendar.current
+    private let columnSpacing: CGFloat = 8
+    private let rowSpacing: CGFloat = 28
 
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 18), count: 7), spacing: 32) {
+        GeometryReader { proxy in
+            let cellWidth: CGFloat = proxy.size.width >= 344 ? 44 : 42
+
+            calendarGrid(cellWidth: cellWidth)
+                .frame(width: cellWidth * 7 + columnSpacing * 6)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .offset(x: -8)
+        }
+        .frame(height: calendarHeight)
+    }
+
+    private func calendarGrid(cellWidth: CGFloat) -> some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.fixed(cellWidth), spacing: columnSpacing), count: 7), spacing: rowSpacing) {
             ForEach(cells, id: \.id) { cell in
                 Group {
                     if let day = cell.day {
-                        DayCell(day: day, date: cell.date, mood: moodFor(date: cell.date))
+                        DayCell(day: day, date: cell.date, mood: moodFor(date: cell.date), width: cellWidth)
                             .onTapGesture {
                                 selectedDate = cell.date
                                 showingDiary = true
@@ -218,6 +232,11 @@ struct CalendarGrid: View {
 
         return result
     }
+
+    private var calendarHeight: CGFloat {
+        let rowCount = CGFloat((cells.count + 6) / 7)
+        return rowCount * 44 + max(0, rowCount - 1) * rowSpacing
+    }
 }
 
 struct CalendarCell {
@@ -230,6 +249,7 @@ struct DayCell: View {
     let day: Int
     let date: Date
     let mood: Mood?
+    let width: CGFloat
 
     private let calendar = Calendar.current
 
@@ -237,15 +257,15 @@ struct DayCell: View {
         ZStack {
             if let mood {
                 MoodBadge(mood: mood)
-                    .frame(width: 58, height: 42)
+                    .frame(width: width, height: width * 0.76)
             } else {
                 Text("\(day)")
                     .font(.system(size: 22, weight: .regular, design: .rounded))
                     .foregroundStyle(numberColor)
-                    .frame(height: 44)
+                    .frame(width: width, height: 44)
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 44)
+        .frame(width: width, height: 44)
         .contentShape(Rectangle())
     }
 
@@ -291,6 +311,8 @@ enum MoodKind: String, CaseIterable, Identifiable {
     case calmCloud
     case smilingHeart
     case softEgg
+    case tiredDog
+    case goodFlower
     case quietCloud
 
     var id: String { rawValue }
@@ -302,6 +324,8 @@ enum MoodKind: String, CaseIterable, Identifiable {
         case .calmCloud: return "Calm"
         case .smilingHeart: return "Loved"
         case .softEgg: return "Soft"
+        case .tiredDog: return "Tired"
+        case .goodFlower: return "Good"
         case .quietCloud: return "Quiet"
         }
     }
@@ -313,7 +337,9 @@ enum MoodKind: String, CaseIterable, Identifiable {
         case .calmCloud: return .calmCloud
         case .smilingHeart: return .smilingHeart
         case .softEgg: return Mood(color: .peach.opacity(0.82), shape: AnyShape(EggShape()), expression: .smile)
-        case .quietCloud: return Mood(color: .sky.opacity(0.75), shape: AnyShape(CloudShape()), expression: .sleepy)
+        case .tiredDog: return Mood(color: Color(red: 0.94, green: 0.79, blue: 0.64), shape: AnyShape(DogBlobShape()), expression: .tired)
+        case .goodFlower: return Mood(color: Color(red: 0.82, green: 0.68, blue: 0.91), shape: AnyShape(SoftFlowerShape()), expression: .smile)
+        case .quietCloud: return Mood(color: .sky.opacity(0.75), shape: AnyShape(EggShape()), expression: .peace)
         }
     }
 }
@@ -323,6 +349,8 @@ enum FaceExpression {
     case sleepy
     case closedSmile
     case calm
+    case tired
+    case peace
 }
 
 struct FaceView: Shape {
@@ -342,6 +370,16 @@ struct FaceView: Shape {
             path.addLine(to: CGPoint(x: leftEye.x + 2, y: leftEye.y - 2))
             path.move(to: CGPoint(x: rightEye.x - 2, y: rightEye.y - 2))
             path.addLine(to: CGPoint(x: rightEye.x + 4, y: rightEye.y))
+        case .tired:
+            path.move(to: CGPoint(x: leftEye.x - 4, y: leftEye.y - 1))
+            path.addQuadCurve(to: CGPoint(x: leftEye.x + 4, y: leftEye.y - 1), control: CGPoint(x: leftEye.x, y: leftEye.y + 4))
+            path.move(to: CGPoint(x: rightEye.x - 4, y: rightEye.y - 1))
+            path.addQuadCurve(to: CGPoint(x: rightEye.x + 4, y: rightEye.y - 1), control: CGPoint(x: rightEye.x, y: rightEye.y + 4))
+        case .peace:
+            path.move(to: CGPoint(x: leftEye.x - 4, y: leftEye.y - 1))
+            path.addQuadCurve(to: CGPoint(x: leftEye.x + 4, y: leftEye.y - 1), control: CGPoint(x: leftEye.x, y: leftEye.y + 2.5))
+            path.move(to: CGPoint(x: rightEye.x - 4, y: rightEye.y - 1))
+            path.addQuadCurve(to: CGPoint(x: rightEye.x + 4, y: rightEye.y - 1), control: CGPoint(x: rightEye.x, y: rightEye.y + 2.5))
         case .closedSmile:
             path.move(to: CGPoint(x: leftEye.x - 4, y: leftEye.y - 2))
             path.addQuadCurve(to: CGPoint(x: leftEye.x + 4, y: leftEye.y - 2), control: CGPoint(x: leftEye.x, y: leftEye.y + 3))
@@ -350,15 +388,20 @@ struct FaceView: Shape {
         }
 
         path.move(to: CGPoint(x: rect.midX - 5, y: rect.midY + 4))
-        path.addQuadCurve(to: CGPoint(x: rect.midX + 5, y: rect.midY + 4), control: CGPoint(x: rect.midX, y: rect.midY + mouthDepth))
+        if expression == .tired {
+            path.addQuadCurve(to: CGPoint(x: rect.midX + 5, y: rect.midY + 4), control: CGPoint(x: rect.midX, y: rect.midY + 1))
+        } else {
+            path.addQuadCurve(to: CGPoint(x: rect.midX + 5, y: rect.midY + 4), control: CGPoint(x: rect.midX, y: rect.midY + mouthDepth))
+        }
         return path
     }
 
     private var mouthDepth: CGFloat {
         switch expression {
         case .sleepy: return 1
-        case .calm: return 5
+        case .calm, .peace: return 5
         case .closedSmile, .smile: return 9
+        case .tired: return 1
         }
     }
 }
@@ -395,6 +438,38 @@ struct HeartBlobShape: Shape {
         path.addCurve(to: CGPoint(x: rect.midX, y: rect.minY + 8), control1: CGPoint(x: rect.minX + 4, y: rect.minY + 6), control2: CGPoint(x: rect.midX - 7, y: rect.minY + 4))
         path.addCurve(to: CGPoint(x: rect.maxX - 4, y: rect.midY), control1: CGPoint(x: rect.midX + 7, y: rect.minY + 4), control2: CGPoint(x: rect.maxX - 4, y: rect.minY + 6))
         path.addCurve(to: CGPoint(x: rect.midX, y: rect.maxY - 4), control1: CGPoint(x: rect.maxX, y: rect.maxY * 0.72), control2: CGPoint(x: rect.midX + rect.width * 0.3, y: rect.maxY - 2))
+        return path
+    }
+}
+
+struct DogBlobShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.2, y: rect.minY + rect.height * 0.42))
+        path.addCurve(to: CGPoint(x: rect.midX, y: rect.minY + rect.height * 0.17), control1: CGPoint(x: rect.minX + rect.width * 0.23, y: rect.minY + rect.height * 0.19), control2: CGPoint(x: rect.minX + rect.width * 0.38, y: rect.minY + rect.height * 0.14))
+        path.addCurve(to: CGPoint(x: rect.maxX - rect.width * 0.2, y: rect.minY + rect.height * 0.42), control1: CGPoint(x: rect.maxX - rect.width * 0.38, y: rect.minY + rect.height * 0.14), control2: CGPoint(x: rect.maxX - rect.width * 0.23, y: rect.minY + rect.height * 0.19))
+        path.addCurve(to: CGPoint(x: rect.midX, y: rect.maxY - 2), control1: CGPoint(x: rect.maxX, y: rect.maxY - rect.height * 0.15), control2: CGPoint(x: rect.maxX - rect.width * 0.26, y: rect.maxY))
+        path.addCurve(to: CGPoint(x: rect.minX + rect.width * 0.2, y: rect.minY + rect.height * 0.42), control1: CGPoint(x: rect.minX + rect.width * 0.26, y: rect.maxY), control2: CGPoint(x: rect.minX, y: rect.maxY - rect.height * 0.15))
+        return path
+    }
+}
+
+struct SoftFlowerShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let petalSize = min(rect.width, rect.height) * 0.46
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+
+        for index in 0..<6 {
+            let angle = CGFloat(index) / 6 * .pi * 2
+            let petalCenter = CGPoint(
+                x: center.x + cos(angle) * rect.width * 0.22,
+                y: center.y + sin(angle) * rect.height * 0.18
+            )
+            path.addEllipse(in: CGRect(x: petalCenter.x - petalSize / 2, y: petalCenter.y - petalSize / 2, width: petalSize, height: petalSize))
+        }
+
+        path.addEllipse(in: CGRect(x: center.x - petalSize * 0.42, y: center.y - petalSize * 0.42, width: petalSize * 0.84, height: petalSize * 0.84))
         return path
     }
 }
@@ -443,23 +518,40 @@ struct DiaryEditorView: View {
                         }
 
                         if !selectedImages.isEmpty {
-                            TabView {
-                                ForEach(selectedImages, id: \.self) { data in
-                                    if let uiImage = UIImage(data: data) {
-                                        Image(uiImage: uiImage)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(height: 240)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                            .overlay {
-                                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                                    .stroke(.white.opacity(0.9), lineWidth: 8)
+                            GeometryReader { proxy in
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(selectedImages.indices, id: \.self) { index in
+                                            if index < selectedImages.count, let uiImage = UIImage(data: selectedImages[index]) {
+                                                ZStack(alignment: .topTrailing) {
+                                                    Image(uiImage: uiImage)
+                                                        .resizable()
+                                                        .scaledToFill()
+                                                        .frame(width: proxy.size.width, height: 240)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                                        .overlay {
+                                                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                                                .stroke(.white.opacity(0.9), lineWidth: 8)
+                                                        }
+
+                                                    Button {
+                                                        deleteImage(at: index)
+                                                    } label: {
+                                                        Image(systemName: "xmark")
+                                                            .font(.system(size: 13, weight: .bold))
+                                                            .foregroundStyle(.ink)
+                                                            .frame(width: 30, height: 30)
+                                                            .background(.white.opacity(0.82), in: Circle())
+                                                    }
+                                                    .accessibilityLabel("Delete picture")
+                                                    .padding(14)
+                                                }
+                                                .frame(width: proxy.size.width, height: 240)
                                             }
-                                            .padding(.horizontal, 2)
+                                        }
                                     }
                                 }
                             }
-                            .tabViewStyle(.page)
                             .frame(height: 260)
                         }
 
@@ -489,20 +581,26 @@ struct DiaryEditorView: View {
                         }
 
                         ForEach(moments) { moment in
-                            HStack(alignment: .top, spacing: 12) {
-                                VStack(spacing: 4) {
-                                    Text(moment.time.formatted(date: .omitted, time: .shortened).lowercased())
-                                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                                        .foregroundStyle(.ink.opacity(0.7))
-                                    Rectangle()
-                                        .fill(.mint.opacity(0.55))
-                                        .frame(width: 2, minHeight: 44)
-                                }
+                            SwipeToDeleteRow {
+                                deleteMoment(moment)
+                            } content: {
+                                HStack(alignment: .top, spacing: 12) {
+                                    VStack(spacing: 4) {
+                                        Text(moment.time.formatted(date: .omitted, time: .shortened).lowercased())
+                                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                                            .foregroundStyle(.ink.opacity(0.7))
+                                        Rectangle()
+                                            .fill(.mint.opacity(0.55))
+                                            .frame(width: 2, minHeight: 44)
+                                    }
 
-                                Text(moment.text)
-                                    .font(.system(size: 16, design: .rounded))
-                                    .foregroundStyle(.ink)
-                                    .padding(.top, 1)
+                                    Text(moment.text)
+                                        .font(.system(size: 16, design: .rounded))
+                                        .foregroundStyle(.ink)
+                                        .padding(.top, 1)
+
+                                    Spacer(minLength: 0)
+                                }
                             }
                         }
                     }
@@ -534,6 +632,73 @@ struct DiaryEditorView: View {
             }
         }
         return imageData
+    }
+
+    private func deleteImage(at index: Int) {
+        guard selectedImages.indices.contains(index) else { return }
+        selectedImages.remove(at: index)
+
+        if selectedItems.indices.contains(index) {
+            selectedItems.remove(at: index)
+        }
+    }
+
+    private func deleteMoment(_ moment: DiaryMoment) {
+        moments.removeAll { $0.id == moment.id }
+    }
+}
+
+struct SwipeToDeleteRow<Content: View>: View {
+    let deleteAction: () -> Void
+    let content: () -> Content
+
+    @State private var offset: CGFloat = 0
+    @State private var isDeleteVisible = false
+
+    private let actionWidth: CGFloat = 82
+
+    init(deleteAction: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+        self.deleteAction = deleteAction
+        self.content = content
+    }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            Button(role: .destructive) {
+                withAnimation(.spring(response: 0.24, dampingFraction: 0.88)) {
+                    offset = 0
+                    isDeleteVisible = false
+                }
+                deleteAction()
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: actionWidth, height: 54)
+                    .background(.red.opacity(0.86), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            }
+            .accessibilityLabel("Delete todo")
+
+            content()
+                .padding(.vertical, 4)
+                .background(Color.paper)
+                .offset(x: offset)
+                .gesture(
+                    DragGesture(minimumDistance: 12)
+                        .onChanged { value in
+                            let base = isDeleteVisible ? -actionWidth : 0
+                            offset = min(0, max(-actionWidth, base + value.translation.width))
+                        }
+                        .onEnded { value in
+                            let shouldReveal = offset < -actionWidth * 0.42 || value.predictedEndTranslation.width < -actionWidth
+                            withAnimation(.spring(response: 0.24, dampingFraction: 0.88)) {
+                                offset = shouldReveal ? -actionWidth : 0
+                                isDeleteVisible = shouldReveal
+                            }
+                        }
+                )
+        }
+        .contentShape(Rectangle())
     }
 }
 
